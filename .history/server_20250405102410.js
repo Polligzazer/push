@@ -1,12 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
-require('dotenv').config();
 
 const app = express();
 
 // Configure CORS to allow requests from your frontend
-app.use(express.json());
 app.use(cors({
   origin: [
     'https://flo-ph.vercel.app',
