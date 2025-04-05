@@ -1,14 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import fetch from 'node-fetch';
+import { createServer } from '@vercel/node'; // <-- adapter for Vercel
 import serverlessExpress from '@vendia/serverless-express';
 
 const app = express();
-
-app.use(cors({ origin: '*' }));
+app.use(cors()); // allow all origins
 app.use(express.json());
 
-const SERVER_KEY = BFxv9dfRXQRt-McTvigYKqvpsMbuMdEJTgVqnb7gsql1kljrxNbZmTA_woI4ngYveFGsY5j33IImXJfiYLHBO3w ;
+const SERVER_KEY = BFxv9dfRXQRt-McTvigYKqvpsMbuMdEJTgVqnb7gsql1kljrxNbZmTA_woI4ngYveFGsY5j33IImXJfiYLHBO3w;
 
 app.post('/', async (req, res) => {
   const { token, title, body } = req.body;
@@ -26,25 +25,17 @@ app.post('/', async (req, res) => {
       },
       body: JSON.stringify({
         to: token,
-        notification: {
-          title,
-          body,
-          click_action: '/home',
-        },
+        notification: { title, body, click_action: '/home' },
       }),
     });
 
     const data = await response.json();
-
-    if (response.ok) {
-      return res.status(200).json({ success: true, data });
-    } else {
-      return res.status(500).json({ success: false, error: data });
-    }
+    if (response.ok) return res.status(200).json({ success: true, data });
+    return res.status(500).json({ success: false, error: data });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// ✅ Export the handler for Vercel
-export default serverlessExpress({ app });
+// ✅ Vercel handler export
+export default createServer(app);

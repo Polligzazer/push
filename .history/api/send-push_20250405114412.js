@@ -8,7 +8,7 @@ const app = express();
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-const SERVER_KEY = BFxv9dfRXQRt-McTvigYKqvpsMbuMdEJTgVqnb7gsql1kljrxNbZmTA_woI4ngYveFGsY5j33IImXJfiYLHBO3w ;
+const SERVER_KEY = process.env.FCM_SERVER_KEY;
 
 app.post('/', async (req, res) => {
   const { token, title, body } = req.body;
