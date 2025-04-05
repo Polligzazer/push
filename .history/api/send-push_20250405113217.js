@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
   const { token, title, body } = req.body;
 
-  const SERVER_KEY = BFxv9dfRXQRt-McTvigYKqvpsMbuMdEJTgVqnb7gsql1kljrxNbZmTA_woI4ngYveFGsY5j33IImXJfiYLHBO3w ;
+  const SERVER_KEY = process.env.FCM_SERVER_KEY;
 
   if (!SERVER_KEY) {
     console.error("❌ Missing FCM_SERVER_KEY");
