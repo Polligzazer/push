@@ -4,33 +4,42 @@ import fetch from 'node-fetch';
 
 const app = express();
 
-// CORS middleware to handle all preflight requests
-app.use(cors({ origin: '*' }));
+// Use CORS middleware to handle preflight requests
+app.use(cors());
 app.use(express.json());
 
-// Environment variable for the FCM server key
 const SERVER_KEY = process.env.FCM_SERVER_KEY;
 
-// Handle POST requests to /api/send-push
 app.post('/api/send-push', async (req, res) => {
-  // Destructure the necessary fields from the request body
+  // Handle OPTIONS preflight requests
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return res.status(204).end();
+  }
+
+  // Set CORS headers for other methods
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  // Destructure data from the request body
   const { token, title, body } = req.body;
 
-  // Check if FCM_SERVER_KEY is available
   if (!SERVER_KEY) {
     return res.status(500).json({ error: 'FCM_SERVER_KEY is missing' });
   }
 
   try {
-    // Make the request to Firebase Cloud Messaging (FCM)
     const response = await fetch('https://fcm.googleapis.com/fcm/send', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `key=${SERVER_KEY}`, // Server key for authorization
+        'Authorization': `key=${SERVER_KEY}`,
       },
       body: JSON.stringify({
-        to: token, // FCM device token
+        to: token,
         notification: {
           title,
           body,
@@ -39,7 +48,6 @@ app.post('/api/send-push', async (req, res) => {
       }),
     });
 
-    // Parse the response from FCM
     const data = await response.json();
 
     if (response.ok) {

@@ -52,4 +52,5 @@ app.post('/api/send-push', async (req, res) => {
   }
 });
 
+// Export the app for use in other files (if needed)
 export default app;
