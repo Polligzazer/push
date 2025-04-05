@@ -13,7 +13,7 @@ app.use(cors({
     'https://17l4wdjp-5173.asse.devtunnels.ms'
   ], // Replace with your frontend domain
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: 'Content-Type, Authorization',
   credentials: true
 }));
 
