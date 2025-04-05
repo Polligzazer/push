@@ -6,7 +6,7 @@ const app = express();
 app.use(cors()); // allow all origins
 app.use(express.json());
 
-const SERVER_KEY = BFxv9dfRXQRt-McTvigYKqvpsMbuMdEJTgVqnb7gsql1kljrxNbZmTA_woI4ngYveFGsY5j33IImXJfiYLHBO3w;
+const SERVER_KEY = process.env.FCM_SERVER_KEY;
 
 app.post('/api/send-push', async (req, res) => {
   const { token, title, body } = req.body;
