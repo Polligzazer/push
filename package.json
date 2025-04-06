@@ -1,7 +1,10 @@
 {
   "dependencies": {
     "@vendia/serverless-express": "^4.12.6",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "google-auth-library": "^9.15.1",
     "node-fetch": "^3.3.2"
   }
 }
