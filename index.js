@@ -7,10 +7,14 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-app.use(express.json());
 app.use(cors({
-  origin: "*"
+  origin: "*",
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
 }));
+app.use(express.json());
+
+app.options('*', cors());
 
 const auth = new GoogleAuth({
   scopes: ["https://www.googleapis.com/auth/firebase.messaging"],
