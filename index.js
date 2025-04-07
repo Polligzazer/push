@@ -50,7 +50,7 @@ app.post("/send-notification", async (req, res) => {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-            to: "<token>",
+            to: token,
             notification: {
               title: title,
               body: body
