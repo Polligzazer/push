@@ -1,4 +1,5 @@
 import { GoogleAuth } from "google-auth-library";
+const serviceAccount = require("../service-account.json"); 
 
 // Serverless handler
 export default async function handler(req, res) {
@@ -28,6 +29,7 @@ export default async function handler(req, res) {
   try {
     // ─── Get OAuth2 access token ─────────────────────────────────────────────────
     const auth = new GoogleAuth({
+      credentials: serviceAccount,
       scopes: ["https://www.googleapis.com/auth/firebase.messaging"],
     });
     const client = await auth.getClient();
