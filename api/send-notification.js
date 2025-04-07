@@ -1,5 +1,4 @@
 import { GoogleAuth } from "google-auth-library";
-const serviceAccount = require("../service-account.json"); 
 
 // Serverless handler
 export default async function handler(req, res) {
