@@ -27,6 +27,7 @@ export default async function handler(req, res) {
 
   try {
     // ─── Get OAuth2 access token ─────────────────────────────────────────────────
+    const serviceAccount = JSON.parse(process.env.SERVICE_ACCOUNT_KEY);
     const auth = new GoogleAuth({
       credentials: serviceAccount,
       scopes: ["https://www.googleapis.com/auth/firebase.messaging"],
