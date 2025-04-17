@@ -20,8 +20,23 @@ try {
   process.exit(1); // Fail fast if initialization fails
 }
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://your-production-domain.com'
+];
+
 
 module.exports = async (req, res) => {
+
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'https://flo-ph.vercel.app'
+  ];
+  
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   // Handle CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
