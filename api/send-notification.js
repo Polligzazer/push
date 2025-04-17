@@ -3,13 +3,23 @@ const { getMessaging } = require('firebase-admin/messaging');
 
 // Initialize Firebase outside the handler
 let firebaseApp;
+console.log("Firebase Config:", {
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  privateKey: process.env.FIREBASE_PRIVATE_KEY?.slice(0, 20) + "..."
+});
 try {
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY
+  .replace(/\\n/g, '\n')
+  .trim();    
+
   const serviceAccount = {
     project_id: process.env.FIREBASE_PROJECT_ID,
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    private_key: privateKey,
     private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID
   };
+
 
   firebaseApp = initializeApp({
     credential: cert(serviceAccount),
