@@ -27,6 +27,14 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  if (req.method === 'GET') {
+    return res.status(405).json({ 
+      error: 'Use POST method for notifications',
+      hint: 'This endpoint only accepts POST requests'
+    });
+  }
+
+
   // Handle preflight request
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
