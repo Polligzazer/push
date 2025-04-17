@@ -1,6 +1,9 @@
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getMessaging } = require('firebase-admin/messaging');
 
+console.log('Initializing Firebase with service account:', 
+  process.env.FIREBASE_SERVICE_ACCOUNT ? 'Exists' : 'Missing!');
+
 let firebaseApp;
 try {
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
