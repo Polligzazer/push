@@ -12,7 +12,8 @@ try {
   };
 
   firebaseApp = initializeApp({
-    credential: cert(serviceAccount)
+    credential: cert(serviceAccount),
+    databaseURL: "https://message-4138f-default-rtdb.asia-southeast1.firebasedatabase.app"
   });
 } catch (error) {
   console.error('🔥 Firebase initialization failed:', error);
