@@ -1,29 +1,40 @@
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getMessaging } = require('firebase-admin/messaging');
 
-console.log('Initializing Firebase with service account:', 
-  process.env.FIREBASE_SERVICE_ACCOUNT ? 'Exists' : 'Missing!');
+const serviceAccount = {
+  type: 'service_account',
+  project_id: process.env.FIREBASE_PROJECT_ID,
+  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+  private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Fix newlines
+  client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  client_id: '115239112856945838359',
+  auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+  token_uri: 'https://oauth2.googleapis.com/token',
+  auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
+  client_x509_cert_url: 'https://www.googleapis.com/robot/v1/metadata/x509/...'
+};
 
-let firebaseApp;
+// Debug: Verify key structure
+console.log('Service Account Key:', {
+  projectId: serviceAccount.project_id,
+  clientEmail: serviceAccount.client_email,
+  privateKeyStart: serviceAccount.private_key.slice(0, 30),
+  privateKeyEnd: serviceAccount.private_key.slice(-30)
+});
+
 try {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
-  
-  if (!serviceAccount.project_id) {
-    throw new Error('Invalid Firebase service account configuration');
-  }
-
-  firebaseApp = initializeApp({
+  initializeApp({
     credential: cert(serviceAccount)
   });
+  console.log('🔥 Firebase initialized successfully');
 } catch (error) {
-  console.error('🔥 Firebase initialization failed:', error);
-  process.exit(1); // Fail fast if initialization fails
+  console.error('Initialization failed:', {
+    message: error.message,
+    code: error.code
+  });
+  process.exit(1);
 }
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://your-production-domain.com'
-];
 
 
 module.exports = async (req, res) => {
