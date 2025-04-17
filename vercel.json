@@ -4,7 +4,7 @@
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "https://yourdomain.com" },
+        { "key": "Access-Control-Allow-Origin", "value": "https://flo-ph.vercel.com" },
         { "key": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" }
       ]
     }
