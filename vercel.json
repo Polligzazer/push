@@ -3,15 +3,16 @@
     {
       "src": "/api/(.*)",
       "dest": "/api/$1",
-      "methods": ["GET", "POST", "OPTIONS"]
+      "methods": ["POST", "OPTIONS"]
     }
   ],
   "headers": [
     {
       "src": "/api/(.*)",
       "headers": {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "http://localhost:5173, https://your-production-domain.com",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Expose-Headers": "Content-Length, X-JSON",
         "Access-Control-Allow-Headers": "Content-Type"
       }
     }
