@@ -1,10 +1,21 @@
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getMessaging } = require('firebase-admin/messaging');
 
-// Initialize Firebase once
-initializeApp({
-  credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
-});
+let firebaseApp;
+try {
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
+  
+  if (!serviceAccount.project_id) {
+    throw new Error('Invalid Firebase service account configuration');
+  }
+
+  firebaseApp = initializeApp({
+    credential: cert(serviceAccount)
+  });
+} catch (error) {
+  console.error('🔥 Firebase initialization failed:', error);
+  process.exit(1); // Fail fast if initialization fails
+}
 
 
 module.exports = async (req, res) => {
