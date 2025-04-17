@@ -1,44 +1,26 @@
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getMessaging } = require('firebase-admin/messaging');
 
-const serviceAccount = {
-  type: 'service_account',
-  project_id: process.env.FIREBASE_PROJECT_ID,
-  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-  private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Fix newlines
-  client_email: process.env.FIREBASE_CLIENT_EMAIL,
-  client_id: '115239112856945838359',
-  auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-  token_uri: 'https://oauth2.googleapis.com/token',
-  auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
-  client_x509_cert_url: 'https://www.googleapis.com/robot/v1/metadata/x509/...'
-};
-
-// Debug: Verify key structure
-console.log('Service Account Key:', {
-  projectId: serviceAccount.project_id,
-  clientEmail: serviceAccount.client_email,
-  privateKeyStart: serviceAccount.private_key.slice(0, 30),
-  privateKeyEnd: serviceAccount.private_key.slice(-30)
-});
-
+// Initialize Firebase outside the handler
+let firebaseApp;
 try {
-  initializeApp({
+  const serviceAccount = {
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID
+  };
+
+  firebaseApp = initializeApp({
     credential: cert(serviceAccount)
   });
-  console.log('🔥 Firebase initialized successfully');
 } catch (error) {
-  console.error('Initialization failed:', {
-    message: error.message,
-    code: error.code
-  });
+  console.error('🔥 Firebase initialization failed:', error);
   process.exit(1);
 }
 
-
-
 module.exports = async (req, res) => {
-
+  // CORS Configuration
   const allowedOrigins = [
     'http://localhost:5173',
     'https://flo-ph.vercel.app'
@@ -48,54 +30,68 @@ module.exports = async (req, res) => {
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
-  // Handle CORS
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Vary', 'Origin'); // Important for proper caching
 
-  if (req.method === 'GET') {
+  // Handle preflight requests FIRST
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end(); // 204 No Content for preflight
+  }
+
+  // Handle unsupported methods
+  if (req.method !== 'POST') {
     return res.status(405).json({ 
-      error: 'Use POST method for notifications',
-      hint: 'This endpoint only accepts POST requests'
+      error: 'Method not allowed',
+      allowed_methods: ['POST'] 
     });
   }
 
-
-  // Handle preflight request
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  // Only allow POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
   try {
-    const { token, title, body, data } = req.body;
-    
-    if (!token || !title || !body) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    // Validate request body
+    if (!req.body || typeof req.body !== 'object') {
+      return res.status(400).json({ error: 'Invalid request format' });
     }
 
+    const { token, title, body, data } = req.body;
+    
+    // Validate required fields
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ error: 'Invalid FCM token' });
+    }
+    if (!title?.trim() || !body?.trim()) {
+      return res.status(400).json({ error: 'Title and body required' });
+    }
+
+    // Send notification
     const message = {
       token,
-      notification: { title, body },
+      notification: { 
+        title: title.trim(),
+        body: body.trim()
+      },
       data: data || {}
     };
 
     const messaging = getMessaging();
     const messageId = await messaging.send(message);
     
-    res.status(200).json({ 
+    return res.status(200).json({ 
       success: true,
-      messageId: messageId
+      messageId 
     });
     
   } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({
+    console.error('🚨 Notification Error:', {
+      error: error.message,
+      code: error.code,
+      stack: error.stack
+    });
+
+    return res.status(500).json({
       error: 'Notification failed',
-      details: error.message
+      code: error.code || 'UNKNOWN_ERROR',
+      message: error.message
     });
   }
 };
