@@ -33,6 +33,7 @@ module.exports = async (req, res) => {
   }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   // Only allow POST requests
   if (req.method !== 'POST') {
