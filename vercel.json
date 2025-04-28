@@ -1,9 +1,33 @@
 {
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1",
-      "methods": ["POST", "OPTIONS"]
+      "src": "/api/.*",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": ["http://localhost:5173", "https://flo-ph.vercel.app"],
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Requested-With",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Max-Age": "86400"
+      }
+    },
+    {
+      "src": "/api/.*",
+      "status": 404,
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "X-API-Version",
+          "value": "1.0.0"
+        }
+      ]
     }
   ]
 }
