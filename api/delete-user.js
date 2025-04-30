@@ -1,31 +1,23 @@
 import admin from 'firebase-admin';
 
-// Initialize Firebase Admin (keep your existing initialization code)
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
 const db = admin.firestore();
 
 const handleCors = (req, res) => {
-  const allowedOrigins = [
-    'http://localhost:5173',
-    'https://flo-ph.vercel.app'
-  ];
-
   const origin = req.headers.origin;
-
-  if (origin && allowedOrigins.includes(origin)) {
+  if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-    res.setHeader('Vary', 'Origin');
-    res.setHeader('Cache-Control', 'no-store');
-  } else {
-    // Reject disallowed origins early (optional for extra security)
-    res.status(403).end();
+    res.setHeader('Vary', 'Origin'); // Helps caching properly
   }
 };
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // Apply CORS headers first
   handleCors(req, res);
 
@@ -39,7 +31,6 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Rest of your existing code...
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -49,7 +40,7 @@ module.exports = async (req, res) => {
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     
-    if (decodedToken.admin !== true) {
+    if (!decodedToken.admin) {
       return res.status(403).json({ error: 'Forbidden: Admins only' });
     }
 
