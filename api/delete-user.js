@@ -6,6 +6,11 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://flo-ph.vercel.app'
+];
+
 const handleCors = (req, res) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
