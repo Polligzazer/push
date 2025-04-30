@@ -77,13 +77,13 @@
       // Send notification
       const message = {
         token,
-        notification: { 
-          title: title.trim(),
-          body: body.trim()
-        },
-        data: data || {}
+        data: {
+          ...data,
+          title,
+          body
+        }
       };
-
+      
       const messaging = getMessaging();
       const messageId = await messaging.send(message);
       
