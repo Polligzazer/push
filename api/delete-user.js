@@ -1,49 +1,58 @@
-import admin from 'firebase-admin';
+const { initializeApp, cert, getApps } = require('firebase-admin/app');
+const { getAuth } = require('firebase-admin/auth');
+const { getFirestore } = require('firebase-admin/firestore');
 
-if (!admin.apps.length) {
-  admin.initializeApp();
+// Initialize Firebase only once
+if (!getApps().length) {
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n').trim();
+
+  const serviceAccount = {
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    private_key: privateKey,
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID
+  };
+
+  initializeApp({
+    credential: cert(serviceAccount),
+    databaseURL: "https://message-4138f-default-rtdb.asia-southeast1.firebasedatabase.app"
+  });
 }
 
-const db = admin.firestore();
+const auth = getAuth();
+const db = getFirestore();
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://flo-ph.vercel.app'
-];
+module.exports = async (req, res) => {
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'https://flo-ph.vercel.app'
+  ];
 
-const handleCors = (req, res) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-    res.setHeader('Vary', 'Origin'); // Helps caching properly
   }
-};
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.setHeader('Vary', 'Origin');
 
-export default async function handler(req, res) {
-  // Apply CORS headers first
-  handleCors(req, res);
-
-  // Handle OPTIONS preflight request
   if (req.method === 'OPTIONS') {
-    return res.status(204).end(); // Must return 204 for preflight
+    return res.status(204).end();
   }
 
-  // Only allow POST requests for main logic
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
     const idToken = authHeader.split('Bearer ')[1];
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const decodedToken = await auth.verifyIdToken(idToken);
     
     if (!decodedToken.admin) {
       return res.status(403).json({ error: 'Forbidden: Admins only' });
@@ -54,15 +63,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing uid in request body' });
     }
 
-    // Your existing deletion logic...
-    await admin.auth().deleteUser(uid);
+    await auth.deleteUser(uid);
     await db.doc(`users/${uid}`).delete();
-    
-    // Batch delete lost items
-    const lostItemsSnap = await db.collection('lost_items')
-      .where('userId', '==', uid)
-      .get();
-    
+
+    const lostItemsSnap = await db.collection('lost_items').where('userId', '==', uid).get();
     const batch = db.batch();
     lostItemsSnap.forEach(doc => batch.delete(doc.ref));
     await batch.commit();
