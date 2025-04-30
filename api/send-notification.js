@@ -77,8 +77,9 @@
       // Send notification
       const message = {
         token,
-        notification: { title, body },
         data: {
+          title,
+          body,
           ...data
         }
       };
