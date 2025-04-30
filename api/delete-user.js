@@ -22,6 +22,16 @@ if (!getApps().length) {
 const auth = getAuth();
 const db = getFirestore();
 
+const uid = 'rWU1JksUQzUhGX42FueojcWo9a82';
+
+auth.setCustomUserClaims(uid, { admin: true })
+  .then(() => {
+    console.log('✅ Custom claims set for admin');
+  })
+  .catch((err) => {
+    console.error('Error setting claims:', err);
+  });
+
 module.exports = async (req, res) => {
   const allowedOrigins = [
     'http://localhost:5173',
