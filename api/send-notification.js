@@ -59,20 +59,15 @@
     }
 
     try {
-      // Validate request body
-      if (!req.body || typeof req.body !== 'object') {
-        return res.status(400).json({ error: 'Invalid request format' });
-      }
+      const { token, payload } = req.body;
 
-      const { token, title, body, data } = req.body;
-      
-      // Validate required fields
-      if (!token || typeof token !== 'string') {
-        return res.status(400).json({ error: 'Invalid FCM token' });
-      }
-      if (!title?.trim() || !body?.trim()) {
-        return res.status(400).json({ error: 'Title and body required' });
-      }
+      if (!token || !payload || typeof payload !== "object") {
+      return res.status(400).json({ error: "Invalid request format" });
+}
+
+      const dataPayload = payload.data ?? payload;
+
+      const { title = "", body = "", ...rest } = dataPayload;
 
       // Send notification
       const message = {
@@ -80,7 +75,7 @@
         data: {
           title,
           body,
-          ...data
+          ...rest,
         }
       };
 
