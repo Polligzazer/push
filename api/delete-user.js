@@ -4,21 +4,25 @@ import admin from 'firebase-admin';
 
 const db = admin.firestore();
 
-// CORS middleware
 const handleCors = (req, res) => {
   const allowedOrigins = [
     'http://localhost:5173',
     'https://flo-ph.vercel.app'
   ];
-  
+
   const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
+
+  if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Cache-Control', 'no-store');
+  } else {
+    // Reject disallowed origins early (optional for extra security)
+    res.status(403).end();
   }
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Vary', 'Origin');
 };
 
 module.exports = async (req, res) => {
