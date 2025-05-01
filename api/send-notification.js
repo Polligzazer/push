@@ -75,6 +75,8 @@
         data: {
           title,
           body,
+          icon: '/icon.png',
+          click_action: 'FLUTTER_NOTIFICATION_CLICK', // Helps in Android display
           ...rest,
         }
       };
