@@ -81,6 +81,11 @@ module.exports = async (req, res) => {
     lostItemsSnap.forEach(doc => batch.delete(doc.ref));
     await batch.commit();
 
+    const chatsSnap = await db.collection('chats').where('userId', '==', uid).get();
+    chatsSnap.forEach(doc => batch.delete(doc.ref));
+    const userChatsSnap = await db.collection('userChats').where('userId', '==', uid).get();
+    userChatsSnap.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
     return res.status(200).json({ success: true });
   } catch (error) {
     console.error('Error:', error);
