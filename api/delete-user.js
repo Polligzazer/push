@@ -35,7 +35,8 @@ auth.setCustomUserClaims(uid, { admin: true })
 module.exports = async (req, res) => {
   const allowedOrigins = [
     'http://localhost:5173',
-    'https://flo-ph.vercel.app'
+    'https://flo-ph.vercel.app',
+    'https://flo-stimeyc.vercel.app'
   ];
 
   const origin = req.headers.origin;
