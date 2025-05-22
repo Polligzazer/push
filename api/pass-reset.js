@@ -29,12 +29,13 @@ export default async function handler(req, res) {
   // CORS Configuration
   const allowedOrigins = ['http://localhost:5173', 'https://flo-ph.vercel.app', 'https://flo-stimeyc.vercel.app'];
   const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
+    if (allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Vary', 'Origin');
+  res.setHeader('Cache-Control', 'no-store');
 
   // Handle preflight requests first
   if (req.method === 'OPTIONS') {
