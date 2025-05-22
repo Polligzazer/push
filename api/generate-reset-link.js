@@ -21,7 +21,7 @@ try {
   console.error('❌ Firebase Admin initialization failed:', error);
 }
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   const allowedOrigins = ['http://localhost:5173', 'https://flo-ph.vercel.app', 'https://flo-stimeyc.vercel.app'];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {

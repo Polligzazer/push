@@ -1,4 +1,18 @@
-export default async function handler(req, res) {
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+
+const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+const firebaseApp = initializeApp({
+  credential: cert({
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+    private_key: privateKey,
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  }),
+});
+
+module.exports = async (req, res) => {
   const allowedOrigins = ['http://localhost:5173', 'https://flo-ph.vercel.app', 'https://flo-stimeyc.vercel.app'];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
