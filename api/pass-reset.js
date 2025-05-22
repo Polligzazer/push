@@ -61,7 +61,7 @@ export default async function handler(req, res) {
 
     // Generate password reset link
     const resetLink = await auth.generatePasswordResetLink(email, {
-      url: 'https://flo-stimeyc.vercel.app/reset-password', // Your frontend URL here
+      url: '${window.location.origin}/reset-password', // Your frontend URL here
       handleCodeInApp: true,
     });
 
